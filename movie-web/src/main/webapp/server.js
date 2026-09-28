@@ -11,8 +11,8 @@ app.use(express.static('public')); // For frontend files
 
 // 1. Initialize Razorpay
 const razorpay = new Razorpay({
-    key_id: 'YOUR_RAZORPAY_KEY_ID',
-    key_secret: 'YOUR_RAZORPAY_SECRET'
+    key_id: 'rzp_live_ThV1DZFZJlCYuF',
+    key_secret: 'oGk7T0yoJwG7PT8JS3GamfsB'
 });
 
 // 2. Initialize Google Sheets Auth
@@ -20,7 +20,7 @@ const auth = new google.auth.GoogleAuth({
     keyFile: 'credentials.json',
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
-const SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
+const SPREADSHEET_ID = '1jbLLUct1Zi2u10iReltIzaAForbXeopkGrynztN-Ep8';
 
 // API: Create Razorpay Order & Verify Seat Limit (Max 10)
 app.post('/api/create-order', async (req, res) => {
@@ -99,4 +99,4 @@ app.post('/api/verify-payment', async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(3000, () => console.log('Server running on port 3000')); 
