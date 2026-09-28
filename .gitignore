@@ -1,0 +1,21 @@
+# --- Google Cloud & Sensitive Credentials ---
+credentials.json
+*.json
+*.pem
+*.key
+
+# --- Maven Build Outputs ---
+target/
+**/target/
+
+# --- Spring Boot Logs & Target ---
+*.log
+.mvn/
+help.pdf
+
+# --- IDE & Operating System Files ---
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

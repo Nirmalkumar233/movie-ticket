@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Ticket Booking</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        
+        body {
+ background-image: url("https://static.toiimg.com/thumb/imgsize-14330,msid-134240627,width-1000,resizemode-4/134240627.jpg");
+ background-color: #cccccc;
+}
+
+
+    </style>
+
+
+
+
+
+</head>
+<body>
+
+
+    <center>
+    <h1 style="color: white;">Book Your Movie Tickets (Max 10)</h1>
+    <input type="text" id="name" placeholder="Your Name" required /><br/>
+    <input type="email" id="email" placeholder="Your Email" required /><br/>
+    <input type="number" id="number" placeholder="Your Mobile Number" required /><br/>
+    
+    <h3 style="color: white;">Select Seats (Click to select):</h3>
+    <div id="seat-map">
+        <!-- Generate seat buttons dynamically via JS -->
+    </div>
+    <p style="color: white;">Selected Seats: <span id="selected-count">0</span>/10</p>
+    <button id="pay-btn" onclick="startPayment()">Proceed to Pay</button>
+
+    <div id="ticket-result" style="display:none;">
+        <h2>Booking Successful!</h2>
+        <p id="b-id"></p>
+        <img id="qr-img" src="" alt="Ticket QR Code" />
+    </div>
+
+    <script>
+        let selectedSeats = [];
+        
+        // Render dummy seats A1 to A20
+        const seatMap = document.getElementById('seat-map');
+        for(let i=1; i<=20; i++) {
+            let seat = document.createElement('button');
+            seat.innerText = `A${i}`;
+            seat.onclick = () => toggleSeat(`A${i}`, seat);
+            seatMap.appendChild(seat);
+        }
+
+        function toggleSeat(seatNo, btn) {
+            const index = selectedSeats.indexOf(seatNo);
+            if(index > -1) {
+                selectedSeats.splice(index, 1);
+                btn.style.background = '';
+            } else {
+                if(selectedSeats.length >= 10) {
+                    alert('You can only select a maximum of 10 tickets.');
+                    return;
+                }
+                selectedSeats.push(seatNo);
+                btn.style.background = 'green';
+            }
+            document.getElementById('selected-count').innerText = selectedSeats.length;
+        }
+
+        async function startPayment() {
+            const customerName = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            if(!customerName || selectedSeats.length === 0) {
+                alert('Please enter your name and select at least one seat.');
+                return;
+            }
+
+            // 1. Create Order on Backend
+            const res = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customerName, email, selectedSeats })
+            });
+            const data = await res.json();
+            if(data.error) { alert(data.error); return; }
+
+            // 2. Open Razorpay Checkout Modal
+            const options = {
+                "key": "YOUR_RAZORPAY_KEY_ID",
+                "amount": data.order.amount,
+                "currency": "INR",
+                "name": "Movieplex Cinemas",
+                "description": "Movie Ticket Booking",
+                "order_id": data.order.id,
+                "handler": async function (response) {
+                    // 3. Verify Payment on Backend & Update Google Sheets
+                    const verifyRes = await fetch('/api/verify-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ...response,
+                            customerName,
+                            email,
+                            selectedSeats
+                        })
+                    });
+                    const verifyData = await verifyRes.json();
+                    if(verifyData.success) {
+                        document.getElementById('ticket-result').style.display = 'block';
+                        document.getElementById('b-id').innerText = `Booking ID: ${verifyData.bookingID}`;
+                        document.getElementById('qr-img').src = verifyData.qrCode;
+                    } else {
+                        alert('Payment verification failed.');
+                    }
+                },
+                "prefill": { "name": customerName, "email": email }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+    </script>
+
+
+
+    </center>
+</body>
+</html>
