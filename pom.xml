@@ -19,6 +19,15 @@
     <name>movie-booking-prod</name>
     <description>Root multi-module project for movie booking system</description>
 
+
+
+         <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.0</version>
+    <relativePath/> <!-- lookup parent from repository -->
+</parent>
+
     <modules>
         <module>server</module>
     </modules>
