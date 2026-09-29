@@ -10,15 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/payment")
 @CrossOrigin(origins = "*")
-
-
-
-// Update this line inside MovieControllerTest.java
-mockMvc.perform(get("/api/payment/health")) // Change from /api/v1/movies/health to /api/payment/health
-       .andExpect(status().isOk());
-
-
-
 public class MovieController {
 
     @Value("${razorpay.key.id}")
