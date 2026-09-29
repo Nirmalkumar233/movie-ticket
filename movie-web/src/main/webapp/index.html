@@ -76,11 +76,10 @@
 
             try {
                 // 1. CALL YOUR SPRING BOOT BACKEND (Replace with your actual EC2 Public IP)
-                const backendUrl = 'http://13.201.77.59>:8080/api/payment/create-order?amount=' + amount;
+                const response = await fetch('http://13.201.77.59:8080/api/payment/create-order?amount=' + amount, {
+    method: 'POST'
+});
                 
-                const response = await fetch(backendUrl, {
-                    method: 'POST'
-                });
 
                 if (!response.ok) {
                     throw new Error("Server error: " + response.status);
