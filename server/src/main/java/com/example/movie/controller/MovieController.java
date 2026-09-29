@@ -21,6 +21,11 @@ public class MovieController {
     @Value("${google.sheets.id}")
     private String googleSheetsId;
 
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "Server is running!";
+    }
+
     @PostMapping("/create-order")
     public String createOrder(@RequestParam int amount) {
         try {
