@@ -19,9 +19,6 @@
     <name>movie-booking-prod</name>
     <description>Root multi-module project for movie booking system</description>
 
-
-
-
     <modules>
         <module>server</module>
     </modules>

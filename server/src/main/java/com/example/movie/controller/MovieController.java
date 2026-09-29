@@ -1,37 +1,41 @@
 package com.example.movie.controller;
 
+import com.razorpay.Order;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/movies")
+@RequestMapping("/api/payment")
+@CrossOrigin(origins = "*")
 public class MovieController {
 
-    // --- PASTE YOUR SPREADSHEET ID HERE ---
-    private final String spreadsheetId = "1jbLLUct1Zi2u10iReltIzaAForbXeopkGrynztN-Ep8";
+    @Value("${razorpay.key.id}")
+    private String razorpayKeyId;
 
-    @GetMapping("/health")
-    public String healthCheck() {
-        return "Movie Booking Backend Service is Running!";
-    }
+    @Value("${razorpay.key.secret}")
+    private String razorpayKeySecret;
 
-    @PostMapping("/book")
-    public Map<String, Object> bookTickets(@RequestParam String movieTitle, @RequestParam int seatCount) {
-        Map<String, Object> response = new HashMap<>();
-        if (seatCount <= 0) {
-            response.put("status", "ERROR");
-            response.put("message", "Seat count must be at least 1.");
-            return response;
+    @Value("${google.sheets.id}")
+    private String googleSheetsId;
+
+    @PostMapping("/create-order")
+    public String createOrder(@RequestParam int amount) {
+        try {
+            RazorpayClient razorpay = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+            
+            JSONObject orderRequest = new JSONObject();
+            orderRequest.put("amount", amount * 100); // Amount in paise
+            orderRequest.put("currency", "INR");
+            orderRequest.put("receipt", "txn_" + System.currentTimeMillis());
+
+            Order order = razorpay.orders.create(orderRequest);
+            return order.toString();
+        } catch (RazorpayException e) {
+            e.printStackTrace();
+            return "Error creating order: " + e.getMessage();
         }
-
-        // Later, your Google Sheets API integration code will use this 'spreadsheetId' 
-        // variable to read seat availability and write the booking record.
-
-        response.put("status", "SUCCESS");
-        response.put("movie", movieTitle);
-        response.put("seatsBooked", seatCount);
-        response.put("totalPrice", seatCount * 200.0);
-        return response;
     }
 }
